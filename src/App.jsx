@@ -1,4 +1,3 @@
-import React from 'react'
 import React, { useState, useRef, useEffect } from 'react';
 import { Loader2, Video, FileText, BrainCircuit, Layers, Play, CheckCircle2, AlertCircle } from 'lucide-react';
 
