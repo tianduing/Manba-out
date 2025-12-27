@@ -1,10 +1,39 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Loader2, Video, FileText, BrainCircuit, Layers, Play, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, Video, FileText, BrainCircuit, Layers, Play, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 
 // --- 配置与常量 ---
 const API_KEY = "AIzaSyCohfBQoOlLeFqs6WwsLFguO5F3lnbZgB8"; // 运行环境将自动填充
 const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
 const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+
+// --- 子组件：可折叠文本 ---
+const ExpandableText = ({ text, limit = 150, className = "" }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  if (!text) return null;
+  const shouldTruncate = text.length > limit;
+  const displayedText = isExpanded ? text : text.slice(0, limit) + (shouldTruncate ? "..." : "");
+
+  return (
+    <div className={className}>
+      <div className="whitespace-pre-wrap leading-relaxed">
+        {displayedText}
+      </div>
+      {shouldTruncate && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="mt-2 flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-wider"
+        >
+          {isExpanded ? (
+            <>收起内容 <ChevronUp className="w-3 h-3" /></>
+          ) : (
+            <>查看全部 <ChevronDown className="w-3 h-3" /></>
+          )}
+        </button>
+      )}
+    </div>
+  );
+};
 
 const App = () => {
   const [videoFile, setVideoFile] = useState(null);
@@ -240,9 +269,9 @@ const App = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {step1Data.length > 0 ? step1Data.map(item => (
-                  <div key={item.id} className="p-3 bg-orange-50 border border-orange-100 rounded-xl text-sm">
-                    <span className="font-bold text-orange-700 uppercase block mb-1">片段 {item.id}</span>
-                    <div className="text-slate-700">{item.content}</div>
+                  <div key={item.id} className="p-3 bg-orange-50 border border-orange-100 rounded-xl">
+                    <span className="font-bold text-orange-700 uppercase block mb-1 text-xs">片段 {item.id}</span>
+                    <ExpandableText text={item.content} limit={100} className="text-sm text-slate-700" />
                   </div>
                 )) : (
                   <div className="col-span-3 py-8 text-center text-slate-400 border-2 border-dashed border-slate-100 rounded-xl">
@@ -259,8 +288,8 @@ const App = () => {
                   阶段 II: 时序逻辑链
                 </h2>
                 {step2Data ? (
-                  <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap bg-purple-50 p-4 rounded-xl border border-purple-100">
-                    {step2Data}
+                  <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                    <ExpandableText text={step2Data} limit={200} className="text-sm text-slate-700" />
                   </div>
                 ) : (
                   <div className="py-12 text-center text-slate-400 border-2 border-dashed border-slate-100 rounded-xl">
@@ -269,17 +298,18 @@ const App = () => {
                 )}
               </div>
 
-              <div className="bg-indigo-900 rounded-2xl p-6 shadow-xl border border-indigo-700 text-white">
-                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-400"/> 
+              {/* 阶段 III配色调整 */}
+              <div className="bg-emerald-50 rounded-2xl p-6 shadow-xl border border-emerald-200">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-emerald-700">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-500"/> 
                   阶段 III: 最终内容摘要
                 </h2>
                 {step3Data ? (
-                  <div className="text-indigo-500 bg-white p-4 rounded-xl leading-relaxed text-sm">
-                    {step3Data}
+                  <div className="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm">
+                    <ExpandableText text={step3Data} limit={250} className="text-emerald-900 text-sm" />
                   </div>
                 ) : (
-                  <div className="py-12 text-center text-indigo-400 border-2 border-dashed border-indigo-800 rounded-xl">
+                  <div className="py-12 text-center text-emerald-400 border-2 border-dashed border-emerald-100 rounded-xl font-medium">
                     等待生成摘要...
                   </div>
                 )}
